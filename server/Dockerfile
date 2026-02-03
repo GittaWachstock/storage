@@ -1,0 +1,11 @@
+FROM python:3.12
+
+WORKDIR /app
+
+COPY . /app/
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PYTHONUNBUFFERED=1
+
+RUN pip install -e .
