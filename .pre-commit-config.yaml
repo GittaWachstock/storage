@@ -1,0 +1,95 @@
+repos:
+  # ========================
+  # PYTHON
+  # ========================
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: check-case-conflict
+      - id: check-json
+      - id: check-merge-conflict
+      - id: check-yaml
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+
+  - repo: https://github.com/psf/black
+    rev: 25.1.0
+    hooks:
+      - id: black
+        name: Black formatter
+        language_version: python3
+        files: ^.*\.py$
+
+  - repo: https://github.com/PyCQA/isort
+    rev: 5.12.0
+    hooks:
+      - id: isort
+        args: ["--profile", "black"]
+        files: ^.*\.py$
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.9.6
+    hooks:
+      - id: ruff
+        args: [--fix]
+        files: ^.*\.py$
+      - id: ruff-format
+        files: ^.*\.py$
+
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.5.1
+    hooks:
+      - id: mypy
+        files: ^.*\.py$
+
+  # ========================
+  # LOCAL CHECKS (Docker/YAML)
+  # ========================
+  - repo: local
+    hooks:
+      - id: yaml-file-extension
+        name: Check YAML extensions
+        entry: YAML filenames must have .yaml extension
+        language: fail
+        files: ^.*\.ya?ml$
+
+      - id: check-netfree-installation
+        name: Check netfree installation in Dockerfiles
+        entry: >
+          bash -c "if grep -n 'netfree.link/dl/unix-ca.sh' -R --include=Dockerfile .; then echo 'Remove netfree installation' && exit 1; fi"
+        language: system
+        files: Dockerfile$
+
+      - id: check-trusted-host
+        name: Check for trusted-host in Dockerfiles
+        entry: >
+          bash -c "if grep -n 'pip install --trusted-host' -R --include=Dockerfile .; then echo 'Remove --trusted-host' && exit 1; fi"
+        language: system
+        files: Dockerfile$
+
+  # ========================
+  # JAVASCRIPT / TYPESCRIPT
+  # ========================
+  - repo: local
+    hooks:
+      - id: prettier
+        name: Run Prettier formatter
+        language: node
+        entry: prettier --write
+        files: ^.*\.[jt]sx?$
+        types: [javascript]
+        additional_dependencies:
+          - prettier@3.2.5
+
+      - id: eslint
+        name: Run ESLint
+        entry: npx eslint --fix
+        language: node
+        files: ^.*\.[jt]sx?$
+        types: [javascript]
+        additional_dependencies:
+          - eslint@^9.22.0
+          - '@eslint/js@9.21.0'
+          - eslint-plugin-react-hooks@5.1.0
+          - eslint-plugin-react-refresh@0.4.19
+          - typescript-eslint@8.24.1
